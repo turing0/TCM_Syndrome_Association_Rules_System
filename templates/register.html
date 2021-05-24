@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}注册{% endblock %}
+
+{% block content %}
+
+        <br><br>
+<div style="width: 40%;margin: auto;">
+    <form class='form-login' action="/register/" method="post">
+        {% if message %}
+            <div class="alert alert-warning">{{ message }}</div>
+        {% endif %}
+          {% csrf_token %}
+        <h2 class="text-center">注册账号</h2>
+      <div class="form-group">
+{#        <label for="id_username">用户名：</label>#}
+{#        <input type="text" name='username' class="form-control" id="id_username" autofocus required>#}
+          {{ register_form.username.label_tag }}
+          {{ register_form.username }}
+      </div>
+      <div class="form-group">
+{#        <label for="id_password">密码：</label>#}
+{#        <input type="password" name='password1' class="form-control" id="id_password" required>#}
+          {{ register_form.password1.label_tag }}
+          {{ register_form.password1 }}
+      </div>
+        <div class="form-group">
+{#        <label for="id_password2">确认密码：</label>#}
+{#        <input type="password" name='password2' class="form-control" id="id_password2" required>#}
+            {{ register_form.password2.label_tag }}
+            {{ register_form.password2 }}
+      </div>
+      <div class="form-group">
+{#        <label for="id_email">邮箱地址：</label>#}
+{#        <input type="email" class="form-control" name='email' id="id_email" aria-describedby="emailHelp" required>#}
+          {{ register_form.email.label_tag }}
+          {{ register_form.email }}
+        </div>
+      <div align="center">
+          <button type="submit" class="btn btn-primary">注册</button>
+          <button type="reset" class="btn btn-default pull-left">重置</button>
+      </div>
+    </form>
+</div>
+        <br>
+    <div style="text-align:center;"><a href="/login">已有账号，去登录</a></div>
+
+{% endblock %}
+

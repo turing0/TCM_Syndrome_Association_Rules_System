@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}主页{% endblock %}
+
+{% block content %}
+    {% if request.session.is_login %}
+        {% if message %}
+            <div class="alert alert-success" role="alert">
+              {{ message }}
+            </div>
+        {% endif %}
+        <h2 style="text-align: center;">{{ request.session.user_name }}，欢迎回来！</h2><br>
+        <div style="text-align: center;">
+            <form method="post" action="/" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form }}<br>
+                <input class="btn btn-primary" type="submit" value="上传文件并分析">
+            </form>
+        </div>
+        <br>
+        <br>
+{#{{ datalist }}#}
+
+<div id="chart2" style="height: 500%;width: 80%;margin: auto"></div>
+        <br><br>
+<div id="chart" style="height: 500%;width: 80%;margin: auto"></div>
+<script type="text/javascript">
+var dom = document.getElementById("chart");
+var myChart = echarts.init(dom);
+var dom2 = document.getElementById("chart2");
+var myChart2 = echarts.init(dom2);
+var app = {};
+
+var option;
+
+{#var data = [["06-05 08:00",116],["06-05 10:00",129],["06-05 12:00",135],["06-05 14:00",86],["06-05 16:00",73],["06-05 18:00",85],["06-05 20:00",73],["06-05 22:00",68],["2000-06-13",92],["2000-06-14",130],["2000-06-15",245],["2000-06-16",139],["2000-06-17",115],["2000-06-18",111],["2000-06-19",309],["2000-06-20",206],["2000-06-21",137],["2000-06-22",128],["2000-06-23",85],["2000-06-24",94],["2000-06-25",71],["2000-06-26",106],["2000-06-27",84],["2000-06-28",93],["2000-06-29",85],["2000-06-30",73],["2000-07-01",83],["2000-07-02",125],["2000-07-03",107],["2000-07-04",82],["2000-07-05",44],["2000-07-06",72],["2000-07-07",106],["2000-07-08",107],["2000-07-09",66],["2000-07-10",91],["2000-07-11",92],["2000-07-12",113],["2000-07-13",107],["2000-07-14",131],["2000-07-15",111],["2000-07-16",64],["2000-07-17",69],["2000-07-18",88],["2000-07-19",77],["2000-07-20",83],["2000-07-21",111],["2000-07-22",57],["2000-07-23",55],["2000-07-24",60]];#}
+var data = {{ valueList }};
+var data2 = {{ reslist }};
+var data3 = {{ xlist|safe }};
+
+
+{#var data = [[0.0, 0.17869758895131085, 0.25772406433683875, 0.3518431813603706], [240.0, 356.0, 281.0, 53.0], [0.0, 0.1478182848263136, 0.28470207630260747, 0.45026682007451235], [316.0, 391.0, 169.0, 54.0], [0.0, 0.20214872925532823, 0.28906113765303076, 0.42353655462184875], [297.0, 394.0, 204.0, 35.0], [0.0, 0.17508323258205966, 0.2542942528158314, 0.36038463552576455], [302.0, 367.0, 217.0, 44.0], [0.0, 0.15339837556706226, 0.2581999025087742, 0.3760616414307659], [278.0, 314.0, 245.0, 93.0], [0.0, 0.17914337552742615, 0.2613863943953507, 0.3546426679907315], [200.0, 237.0, 265.0, 228.0]] ;#}
+
+var filename = '{{file}}';
+{#var data = {{airHourly|safe}};#}
+
+var valueList1 = data.map(function (item) {
+    return item[0];
+});
+var valueList2 = data.map(function (item) {
+    return item[1];
+});
+var valueList3 = data.map(function (item) {
+    return item[2];
+});
+var valueList4 = data.map(function (item) {
+    return item[3];
+});
+
+var valueList6 = data2.map(function (item) {
+    return item[0]*100;
+});
+var valueList7 = data2.map(function (item) {
+    return item[1]*100;
+});
+
+
+option = {
+    title: {
+        text: '模型结果',
+        subtext: filename,
+    },
+    toolbox: {
+        show: true,
+        feature: {
+            dataZoom: {
+                yAxisIndex: 'none'
+            },
+            dataView: {readOnly: false},
+            magicType: {type: ['line', 'bar']},
+            restore: {},
+            saveAsImage: {}
+        }
+    },
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+        }
+    },
+    legend: {
+        data: ['支持度（%）', '置信度（%）']
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis: [
+        {
+            type: 'category',
+            data: data3
+        }
+    ],
+    yAxis: [
+        {
+            type: 'value'
+        }
+    ],
+    series: [
+        {
+            name: '支持度（%）',
+            type: 'bar',
+            emphasis: {
+                focus: 'series'
+            },
+            data: valueList6
+        },
+        {
+            name: '置信度（%）',
+            type: 'bar',
+            data: valueList7,
+            emphasis: {
+                focus: 'series'
+            }
+        }
+    ]
+};
+
+option2 = {
+    title: {
+        text: '证型系数离散化',
+        subtext: filename,
+    },
+    toolbox: {
+        show: true,
+        feature: {
+            dataZoom: {
+                yAxisIndex: 'none'
+            },
+            dataView: {readOnly: false},
+            magicType: {type: ['line', 'bar']},
+            restore: {},
+            saveAsImage: {}
+        }
+    },
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+        }
+    },
+    legend: {
+        data: ['1', '2', '3', '4']
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis: [
+        {
+            type: 'category',
+            data: ['An', 'Bn', 'Cn', 'Dn', 'En', 'Fn']
+        }
+    ],
+    yAxis: [
+        {
+            type: 'value'
+        }
+    ],
+    series: [
+        {
+            name: '1',
+            type: 'bar',
+            stack: 'd',
+            emphasis: {
+                focus: 'series'
+            },
+            data: valueList1
+        },
+        {
+            name: '2',
+            type: 'bar',
+            stack: 'd',
+            emphasis: {
+                focus: 'series'
+            },
+            data: valueList2
+        },
+        {
+            name: '3',
+            type: 'bar',
+            stack: 'd',
+            emphasis: {
+                focus: 'series'
+            },
+            data: valueList3
+        },
+        {
+            name: '4',
+            type: 'bar',
+            stack: 'd',
+            emphasis: {
+                focus: 'series'
+            },
+            data: valueList4
+        }
+    ]
+};
+
+if (option && typeof option === 'object') {
+    myChart.setOption(option);
+    myChart2.setOption(option2);
+}
+
+</script>
+<br>
+
+    {% else %}
+        <br><br>
+    <h1 style="text-align: center;">你尚未登录，只能访问公开内容！</h1>
+        <br><br><br><br>
+        <div style="text-align: center;">
+            <button type="button" class="btn btn-dark" onclick="location.href='/login'">去登录</button>
+        </div>
+    {% endif %}
+{% endblock %}
