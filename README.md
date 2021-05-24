@@ -1,0 +1,1 @@
+# TCM_Syndrome_Association_Rules_System
